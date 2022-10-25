@@ -1,0 +1,84 @@
+
+# ELASTIC SEARCH
+- name: Downloading and adding GPG keys
+  shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+- name: Installing dependecies
+  apt:
+    name:
+      -  apt-transport-https
+    state: latest
+
+- name: Adding es to the repo
+  shell: |
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+
+- name: Updating the repo and installing es
+  apt:
+    name: elasticsearch
+    update_cache: true
+
+- name: Reloading daemon
+  shell: |
+    sudo /bin/systemctl daemon-reload
+
+- name: Starting and enabling the process
+  service:
+    name: elasticsearch
+    state: lastest
+    enabled: true
+
+# LOGSTASH
+- name: Downlaoding the public signing key and adding to the repo
+  shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+- name: Donwloading dependecies
+  apt:
+    name:
+      - apt-transport-https
+    state: present
+
+- name: Saving repo definition
+  shell: |
+    echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-8.x.list
+
+- name: Updatin and installing Logstash
+  apt:
+    name:
+      - logstash
+    update_cache: yes
+
+
+# KIBANA 
+- name: Downlaoding the public signing key and adding to the repo
+  shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+- name: Donwloading dependecies
+  apt:
+    name:
+      - apt-transport-https
+    state: present
+
+- name: Saving repo definition
+  shell: |
+    echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-8.x.list
+
+- name: Updatin and installing Logstash
+  apt:
+    name:
+      - kibana
+    update_cache: yes
+
+- name: Reloading daemon
+  shell: |
+    sudo /bin/systemctl daemon-reload
+
+- name: Starting and enabling the process
+  service:
+    name: kibana
+    state: lastest
+    enabled: true
+

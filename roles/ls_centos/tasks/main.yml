@@ -1,0 +1,25 @@
+- name: Installing apache
+  yum:
+    name:
+      - httpd
+      - mariadb-server
+      - mariadb
+      - php
+      - php-mysql
+    state: latest
+
+- name: Starting the services
+  service:
+    name:
+      - httpd
+      - mariadb
+      - apache2
+    state: restarted
+    enabled: true
+
+- name: Opening needed ports
+  shell: |
+    sudo firewall-cmd --permanent --zone=public --add-service=http
+    sudo firewall-cmd --permanent --zone=public --add-service=https
+    sudo firewall-cmd --reload
+

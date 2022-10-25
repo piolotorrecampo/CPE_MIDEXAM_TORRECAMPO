@@ -1,0 +1,105 @@
+
+# PROMETHEUS
+- name: Creating a directory (where the downloaded files will be stored)
+  tags: directory
+  file:
+    path: ~/prometheus
+    state: directory
+  
+- name: Downloading and extracting Prometheus
+  tags: source
+  unarchive:
+    src: https://github.com/prometheus/prometheus/releases/download/v2.39.1/prometheus-2.39.1.linux-amd64.tar.gz
+    dest: ~/prometheus
+    remote_src: yes
+    mode: 0777
+    owner: root
+    group: root
+
+- name: Stopping the service 
+  service:
+    name: prometheus
+    state: stopped 
+
+- name: Adding the Prometheus executables to a PATH
+  tags: executables
+  shell: | 
+    cd ~/prometheus/prometheus*
+    cp -r . /usr/local/bin/prometheus
+
+- name: Copying the Prometheus service file
+  tags: servicefile
+  copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+    mode: 777
+
+- name: Making sure that Prometheus is started and enabled
+  tags: serviceon
+  service:
+    name: prometheus
+    state: restarted
+    enabled: true
+
+# GRAFANA
+- name: Adding Grafana to the repository
+  copy:
+    src: grafana.repo
+    dest: /etc/yum.repos.d/grafana.repo
+    owner: root
+    group: root
+    mode: 777
+
+- name: Installing Grafana
+  yum:
+    name:
+      - grafana
+    state: latest
+
+- name: Reloading the daemon
+  shell: |
+    sudo systemctl daemon-reload
+
+- name: Sarting and enabling the service
+  service:
+    name: grafana-server
+    state: restarted
+    enabled: true
+
+# INFLUXD
+- name: Adding influxdb in repository 
+  copy:
+    scr: influxdb.repo
+    dest: /etc/yum.repos.d/influxdb.repo
+    owner: root
+    group: root
+    mode: 777
+
+- name: Installing grafana
+  yum:
+    name:
+      - grafana
+    state: latest
+
+- name: Reloading the daemon
+  shell: |
+    sudo systemctl daemon-reload
+
+- name: Sarting and enabling the service
+  service:
+    name: influxdb
+    state: restarted
+    enabled: true
+
+- name: Opening ports
+  shell: |
+    firewall-cmd --permanent --zone=public --add-port=8086/tcp
+    sleep 5
+    firewall-cmd --permanent --zone=public --add-port=8083/tcp
+    sleep 5
+    firewall-cmd --reload
+
+
+

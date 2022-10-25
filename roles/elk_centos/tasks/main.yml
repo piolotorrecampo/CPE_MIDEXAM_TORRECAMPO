@@ -1,0 +1,102 @@
+# KIBANA
+- name: Downloading and installing public signing key
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: Adding kibana to the RPM repository
+  copy:
+    src: kibana.repo
+    dest: /etc/yum.repos.d/kibana.repo
+    owner: root
+    group: root
+    mode: 777
+
+- name: Updating the repository once again
+  yum:
+    name:
+      - kibana
+    state: latest
+
+- name: Opening port for elastic search
+  firewalld:
+    port: 5601/tcp
+    zone: public
+    permanent: yes
+    state: enabled
+
+- name: Making sure that Kibana is started and enabled
+  service:
+    name: kibana
+    state: restarted
+    enabled: true
+
+# LOGSTASH
+- name: Downloading and installing public signing key
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch 
+
+- name: Creeating a repo file for Logstash
+  copy:
+    src: logstash.repo
+    dest: /etc/yum.repos.d/logstash.repo
+    owner: root
+    group: root
+    mode: 0777
+
+- name: Updating repo
+  dnf:
+    update_cache: yes
+    
+- name: Installing Logstash and its dependencies
+  dnf:
+    name:
+      - logstash
+    state: latest
+
+- name: Opening port for Logstash
+  shell: | 
+    sudo firewall-cmd --permanent --zone=public --add-port=9600/tcp
+    sleep 10
+    sudo firewall-cmd --reload
+
+- name: Making sure that logstash is stared and enabled
+  service:
+    name: logstash
+    state: restarted
+    enabled: true
+
+# ELASTIC SEARCH
+- name: Downloading the source file of elastic search
+  get_url:
+    url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.3-x86_64.rpm
+    dest: /tmp/elasticsearch-8.4.3-x86_64.rpm
+
+- name: Installing elasticsearch
+  yum:
+    name: /tmp/elasticsearch-8.4.3-x86_64.rpm
+    state: present
+
+- name: Enabling elastic search service
+  service:
+    name: elasticsearch
+    enabled: yes
+
+- name: Modifying service file
+  replace:
+    path: /usr/lib/systemd/system/elasticsearch.service
+    regexp: "TimeoutStartSec=75"
+    replace: "TimeoutStartSec=300"
+
+- name: Opening port for elastic search
+  shell: | 
+    sudo firewall-cmd --permanent --zone=public --add-port=9200/tcp
+    sleep 10
+    sudo firewall-cmd --reload
+
+- name: Enabling elastic search service
+  shell: |
+    systemctl enable elasticsearch.service
+    sleep 10
+    systemctl start elasticsearch.service

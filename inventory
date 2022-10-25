@@ -1,0 +1,20 @@
+[nagios_centos]
+192.168.122.234 ansible_user=cserver1
+
+[elk_centos]
+192.168.122.234 ansible_user=cserver1
+
+[elk_ubuntu]
+192.168.122.69 ansible_user=userver1
+
+[igp_centos]
+192.168.122.234 ansible_user=cserver1
+
+[igp_ubuntu]
+192.168.122.69 ansible_user=userver1
+
+[ls_centos]
+192.168.122.234 ansible_user=cserver1
+
+[ls_ubuntu]
+192.168.122.69 ansible_user=userver1

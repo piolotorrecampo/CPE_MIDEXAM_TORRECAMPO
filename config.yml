@@ -1,0 +1,86 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Installing dnf and epel-release
+    yum:
+      name:
+        - epel-release
+        - dnf
+    when: ansible_distribution == "CentOS"
+
+  - name: Update and upgrade remote CentOS server
+    dnf:
+      update_cache: yes
+      name:  "*"
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+  - name: Installing installations dependencies
+    apt:
+      name:
+        - wget
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+  
+  - name: Dpkg fixing in Ubuntu Servers
+    shell: |
+      dpkg --configure -a
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Update and upgrade remote in Ubuntu servers
+    apt:
+      update_cache: yes
+      upgrade: yes
+    when: ansible_distribution == "Ubuntu"
+
+# Nagios Centos
+- hosts: nagios_centos
+  tags: nagios
+  become: true
+  roles:
+    - nagios_centos
+
+# ELK Centos
+- hosts: elk_centos
+  tags: elk 
+  become: true
+  roles:
+    - elk_centos
+
+# ELK Ubuntu
+- hosts: elk_ubuntu
+  tags: elk 
+  become: true
+  roles:
+    - elk_ubuntu
+
+# IGP (Influxdb, Grafana, Prometheus) Centos
+- hosts: igp_centos
+  tags: igp
+  become: true
+  roles: 
+    - igp_centos
+
+# IGP (Influxdb, Grafana, Prometheus) Ubuntu
+- hosts: igp_ubuntu
+  tags: igp
+  become: true
+  roles: 
+    - igp_ubuntu
+
+# Lamp Stack (Centos)
+- hosts: ls_centos
+  tags: ls
+  become: true
+  roles: 
+    - ls_centos
+
+# Lamp Stack (Ubuntu)
+- hosts: ls_ubuntu
+  tags: ls
+  become: true
+  roles: 
+    - ls_ubuntu

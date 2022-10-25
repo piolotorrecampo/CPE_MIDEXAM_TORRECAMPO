@@ -1,0 +1,15 @@
+- name: Installing depedncies
+  apt:
+    name:
+      - apache2
+    state: latest 
+
+- name: Starting the services
+  service:
+    name:
+      - apache2
+      - mariadb
+    states: restarted
+    enabled: true
+
+
