@@ -1,5 +1,5 @@
-- name: Installing apache
-  yum:
+- name: Installing Lamp Stack dependencies
+  dnf:
     name:
       - httpd
       - mariadb-server
@@ -8,18 +8,22 @@
       - php-mysql
     state: latest
 
-- name: Starting the services
-  service:
-    name:
-      - httpd
-      - mariadb
-      - apache2
-    state: restarted
-    enabled: true
-
-- name: Opening needed ports
+- name: Opening needed ports for Lamp Stack
   shell: |
     sudo firewall-cmd --permanent --zone=public --add-service=http
     sudo firewall-cmd --permanent --zone=public --add-service=https
     sudo firewall-cmd --reload
+
+- name: Starting Apache service
+  service:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: Starting Mariadb services
+  service:
+    name: mariadb
+    state: started
+    enabled: true
+
 
